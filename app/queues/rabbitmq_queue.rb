@@ -10,39 +10,25 @@ module RabbitmqQueue
     )
   end
 
-  def self.publish_message(data)
+  def self.publish_message(message)
     puts "----------------------------------- publishing -----------------------------------"
-    puts "----------------------------------- #{data} -----------------------------------"
+    puts "----------------------------------- #{message} -----------------------------------"
     connection = RabbitmqQueue.new_connection
-
     begin
       connection.start
       channel = connection.create_channel
       queue = channel.queue('my_queue', durable: true)
-
-      # Convert data to JSON
-      json_message = data.to_json
-
-      # Publish JSON message
-      channel.default_exchange.publish(
-        json_message,
-        routing_key: queue.name,
-        content_type: 'application/json'
-      )
-
-      puts "Published JSON message: #{json_message}"
+      
+      channel.default_exchange.publish(message, routing_key: queue.name)
+      
       true
     rescue Bunny::TCPConnectionFailed => e
       Rails.logger.error "Connection to RabbitMQ failed: #{e.message}"
       false
-    rescue JSON::GeneratorError => e
-      Rails.logger.error "Failed to generate JSON: #{e.message}"
-      false
     ensure
-      connection.close if connection&.open?
+      connection.close if connection.open?
     end
   end
-
 
   def self.consume_message(max_messages = 1)
     puts "--------------------------------- Consuming message ---------------------------------"
