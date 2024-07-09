@@ -1,0 +1,27 @@
+version: "3.0"
+name: my-rabbitmq-server
+services:
+  web:
+    container_name: docker-web
+    build: .
+    command: bundle exec rails s -p 3000 -b "0.0.0.0" 
+    volumes:
+      - .:/rails
+    ports: 
+      - "3000:3000"
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  # queue:
+  #   image: rabbitmq:3-management
+  #   hostname: my-rabbit
+  #   volumes:
+  #   - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
+  #   - ./rabbitmq/etc/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+  #   - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
+  #   - ./rabbitmq/logs:/var/log/rabbitmq/log
+  #   ports:
+  #   - 5672:5672
+  #   - 15672:15672
+  #   restart: always
